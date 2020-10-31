@@ -4,7 +4,9 @@ import shutil
 from os import walk
 
 filepath = '/content/sample_data'
+path = ''
 
+# get list of files in directories
 files = []
 for (dirpath, dirnames, filenames) in walk(filepath):
     files.extend(filenames)
@@ -12,28 +14,30 @@ for (dirpath, dirnames, filenames) in walk(filepath):
 print(files)
 
 with open('/content/sample_data/test_file.txt') as fr:
-  parent_dir = '/content/sample_data/'
-  path = ''
   csv_data = csv.reader(fr, delimiter='|')
-  for row in csv_data:
-    # print(row)
-    for i in row:
-      col, val = i.strip().split(sep=':')
-      # print(col, val)
-      path = os.path.join(parent_dir,col)
-      print(path)
+  for count, row in enumerate(csv_data):
+    # print(count, row)
+    if count > 0: # ignore header
+      for i in row:
+        col, val = i.strip().split(sep=':')
+        # print(col, val)
+        path = os.path.join(filepath,col) #add directory using first column value from csv file.
+        print(path)
 
-      try:
-          shutil.rmtree(path)
-          print("{} removed successfully".format(path))
-      except OSError as error:
-          print("Error: {} : {}".format(path, error.strerror))
+        # remove existing directories
+        try:
+            shutil.rmtree(path)
+            print("{} removed successfully".format(path))
+        except OSError as error:
+            print("Error: {} : {}".format(path, error.strerror))
 
-      try: 
-          os.makedirs(path,exist_ok = True) 
-          print("Directory {} created successfully".format(path)) 
-      except OSError as error: 
-          print("Directory {} can not be created. {}".format(path, error))
+        # create directories
+        try: 
+            os.makedirs(path,exist_ok = True) 
+            print("Directory {} created successfully".format(path)) 
+        except OSError as error: 
+            print("Directory {} can not be created. {}".format(path, error))
 
-      with open(path+'/'+col+'.txt', 'a') as fw:
-        fw.write(''.join(val) + '\n')
+        # create files in directories
+        with open(path+'/'+col+'.txt', 'a') as fw:
+          fw.write(''.join(val) + '\n')
